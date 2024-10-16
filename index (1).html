@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energy Production Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('https://nuvisionengineering.com/wp-content/uploads/2019/01/Nuclear-Power-Plant-at-night-ratio-2.jpg') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.9); 
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            max-width: 500px;
+            width: 100%;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+        input {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            background: #e9ecef;
+            border-radius: 4px;
+            padding: 10px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .result p {
+            margin: 0;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Energy Production Prediction</h1>
+        <form id="prediction-form">
+            
+            <label for="exhaust_vacuum">Exhaust Vacuum (Pa):</label>
+            <input type="number" id="exhaust_vacuum" name="exhaust_vacuum" step="0.1" required>
+
+            <label for="amb_pressure">Ambient Pressure (Pa):</label>
+            <input type="number" id="amb_pressure" name="amb_pressure" step="0.01" required>
+
+            <label for="r_humidity">Relative Humidity :</label>
+            <input type="number" id="r_humidity" name="r_humidity" step="0.1" required>
+
+            <button type="button" onclick="submitForm()">Predict</button>
+        </form>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        function submitForm() {
+            const formData = {
+                exhaust_vacuum: parseFloat(document.getElementById('exhaust_vacuum').value),
+                amb_pressure: parseFloat(document.getElementById('amb_pressure').value),
+                r_humidity: parseFloat(document.getElementById('r_humidity').value)
+            };
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.predicted_energy_production !== undefined) {
+                    document.getElementById('result').innerHTML = `<p>Predicted Energy Production: <strong>${data.predicted_energy_production.toFixed(2)} MW</strong></p>`;
+                } else if (data.error) {
+                    document.getElementById('result').innerHTML = `<p style="color: red;">Error: ${data.error}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = `<p style="color: red;">Error occurred. Please try again.</p>`;
+            });
+        }
+    </script>
+</body>
+</html>
